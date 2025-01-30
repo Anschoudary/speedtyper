@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speed Typing Test</title>
+    <style>
+        :root {
+            --bg-color: #f0f4f8;
+            --text-color: #2d3436;
+            --primary-color: #6c5ce7;
+            --secondary-color: #a8a4e6;
+            --error-color: #ff7675;
+            --success-color: #55efc4;
+            --border-color: #d3d9df;
+            --glass-bg: rgba(255, 255, 255, 0.9);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1a1d24;
+            --text-color: #e3eaf2;
+            --primary-color: #7b68ee;
+            --secondary-color: #4a4a72;
+            --error-color: #ff4757;
+            --success-color: #2ed573;
+            --border-color: #2d2d44;
+            --glass-bg: rgba(26, 29, 36, 0.9);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+            margin: 0;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+        }
+
+        .theme-toggle {
+            cursor: pointer;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            color: white;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.05);
+        }
+
+        .time-settings {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            justify-content: center;
+        }
+
+        .time-btn {
+            padding: 0.75rem 1.5rem;
+            background: var(--glass-bg);
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .time-btn.active, .time-btn:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .text-container {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        .text {
+            font-size: 1.25rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            color: var(--text-color);
+            font-weight: 400;
+        }
+
+        .char {
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .char.correct {
+            color: var(--success-color);
+        }
+
+        .char.incorrect {
+            color: var(--error-color);
+            text-decoration: line-through;
+        }
+
+        .input-field {
+            width: 100%;
+            height: 150px;
+            padding: 1.5rem;
+            font-size: 1.25rem;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--glass-bg);
+            color: var(--text-color);
+            resize: none;
+            transition: border-color 0.3s;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin: 2rem 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .stat-box {
+            background: var(--glass-bg);
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            min-width: 120px;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        .start-btn {
+            width: 100%;
+            padding: 1.25rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            color: white;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+
+        .start-btn:hover {
+            transform: scale(1.02);
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚡ Speed Typing Test</h1>
+            <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
+        </div>
+
+        <div class="time-settings">
+            <button class="time-btn" data-time="15">15s</button>
+            <button class="time-btn active" data-time="30">30s</button>
+            <button class="time-btn" data-time="60">60s</button>
+        </div>
+
+        <div class="text-container">
+            <div class="text"></div>
+            <textarea class="input-field" placeholder="Click start and begin typing here..." spellcheck="false"></textarea>
+        </div>
+
+        <div class="stats">
+            <div class="stat-box">Time: <span id="timer">0</span>s</div>
+            <div class="stat-box">Mistakes: <span id="mistakes">0</span></div>
+            <div class="stat-box">Speed: <span id="wpm">0</span> WPM</div>
+        </div>
+
+        <button class="start-btn" onclick="startTest()">Start Test</button>
+    </div>
+
+    <script>
+        const paragraphs = [
+            "Artificial intelligence is revolutionizing technology, creating new possibilities across various industries while raising important ethical questions.",
+            "Quantum computing harnesses quantum phenomena to perform calculations, potentially solving problems classical computers fundamentally cannot.",
+            "Sustainable energy solutions are critical for combating climate change, with solar and wind power leading the transition to renewable resources."
+        ];
+
+        let currentParagraph = '';
+        let timeTotal = 0;
+        let timeLeft = 0;
+        let timer = null;
+        let mistakes = 0;
+        let isTestRunning = false;
+        let startTime = 0;
+        let correctChars = 0;
+
+        function getRandomParagraph() {
+            return paragraphs[Math.floor(Math.random() * paragraphs.length)];
+        }
+
+        function startTest() {
+            if (isTestRunning) return;
+            
+            currentParagraph = getRandomParagraph();
+            timeTotal = document.querySelector('.time-btn.active')?.dataset.time || 30;
+            timeLeft = parseInt(timeTotal);
+            mistakes = 0;
+            correctChars = 0;
+            isTestRunning = true;
+            startTime = Date.now();
+
+            document.querySelector('.text').innerHTML = currentParagraph
+                .split('')
+                .map(char => `<span class="char">${char}</span>`)
+                .join('');
+
+            document.querySelector('.input-field').value = '';
+            document.querySelector('.input-field').disabled = false;
+            document.querySelector('.input-field').focus();
+            updateStats();
+
+            timer = setInterval(updateTimer, 100);
+            document.querySelectorAll('.time-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector('.start-btn').classList.add('hidden');
+        }
+
+        function updateTimer() {
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            timeLeft = timeTotal - elapsed;
+            
+            if (timeLeft <= 0) {
+                timeLeft = 0;
+                endTest();
+            }
+            updateStats();
+        }
+
+        function endTest() {
+            clearInterval(timer);
+            isTestRunning = false;
+            document.querySelector('.input-field').disabled = true;
+            document.querySelector('.start-btn').classList.remove('hidden');
+            
+            const timeElapsed = timeTotal - timeLeft;
+            const wpm = Math.round((correctChars / 5) / (timeElapsed / 60));
+            
+            alert(`Test Complete!\nWPM: ${wpm}\nAccuracy: ${Math.round((correctChars / currentParagraph.length) * 100)}%\nMistakes: ${mistakes}`);
+        }
+
+        function updateStats() {
+            document.getElementById('timer').textContent = timeLeft;
+            document.getElementById('mistakes').textContent = mistakes;
+            const timeElapsed = timeTotal - timeLeft;
+            const wpm = timeElapsed > 0 ? Math.round((correctChars / 5) / (timeElapsed / 60)) : 0;
+            document.getElementById('wpm').textContent = wpm;
+        }
+
+        function toggleTheme() {
+            const newTheme = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            document.body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+
+        // Event Listeners
+        document.querySelectorAll('.time-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+
+        document.querySelector('.input-field').addEventListener('input', (e) => {
+            if (!isTestRunning) return;
+
+            const typedText = e.target.value;
+            const chars = document.querySelectorAll('.char');
+            let newMistakes = 0;
+            let newCorrectChars = 0;
+
+            chars.forEach((char, index) => {
+                if (index < typedText.length) {
+                    if (typedText[index] === currentParagraph[index]) {
+                        char.classList.add('correct');
+                        char.classList.remove('incorrect');
+                        newCorrectChars++;
+                    } else {
+                        char.classList.add('incorrect');
+                        char.classList.remove('correct');
+                        newMistakes++;
+                    }
+                } else {
+                    char.classList.remove('correct', 'incorrect');
+                }
+            });
+
+            // Only count persistent mistakes
+            mistakes = newMistakes;
+            correctChars = newCorrectChars;
+            
+            updateStats();
+
+            if (typedText.length >= currentParagraph.length) {
+                endTest();
+            }
+        });
+
+        // Initialize
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.body.setAttribute('data-theme', savedTheme);
+        document.querySelector('.time-btn[data-time="30"]').classList.add('active');
+    </script>
+</body>
+</html>
